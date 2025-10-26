@@ -144,3 +144,6 @@ $HADOOP_HOME/etc/hadoop/core-site.xml
 $SPARK_HOME/conf/workers
 # Danh sách máy tính tham gia cluster Spark
 worker-node
+
+
+

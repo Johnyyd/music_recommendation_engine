@@ -16,8 +16,10 @@ spark.sparkContext.setLogLevel("WARN")
 # ========================================
 # 2. Đọc dữ liệu JSON
 # ========================================
-raw_path = "hdfs://node1:9000/data/mpd/raw/"
-parquet_path = "hdfs://node1:9000/data/mpd/parquet/"
+
+node = "172.19.67.26" # "node1"
+raw_path = f"hdfs://{node}:9000/data/mqd/raw/"
+parquet_path = f"hdfs://{node}:9000/data/mqd/parquet"
 
 df_raw = spark.read.json(raw_path)
 
@@ -60,8 +62,8 @@ df_interactions = (
 # 5. Lưu ra HDFS dưới dạng Parquet
 # ========================================
 df_interactions.write.mode("overwrite").parquet(parquet_path)
-playlist_indexer.write.mode("overwrite").parquet("hdfs://node1:9000/data/mpd/meta/playlist_indexer/")
-track_indexer.write.mode("overwrite").parquet("hdfs://node1:9000/data/mpd/meta/track_indexer/")
+playlist_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mpd/meta/playlist_indexer/")
+track_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mpd/meta/track_indexer/")
 
 print("✅ ETL hoàn tất: dữ liệu Parquet & mapping đã sẵn sàng.")
 spark.stop()

@@ -18,9 +18,10 @@ spark.sparkContext.setLogLevel("WARN")
 # ========================================
 # 2. Đọc model & dữ liệu meta
 # ========================================
-model_path = "hdfs://node1:9000/models/als_implicit/"
-playlist_meta_path = "hdfs://node1:9000/data/mpd/meta/playlist_indexer/"
-track_meta_path = "hdfs://node1:9000/data/mpd/meta/track_indexer/"
+node = "172.19.67.26" # "node1"
+model_path = f"hdfs://{node}:9000/models/als_implicit/"
+playlist_meta_path = f"hdfs://{node}:9000/data/mpd/meta/playlist_indexer/"
+track_meta_path = f"hdfs://{node}:9000/data/mpd/meta/track_indexer/"
 
 model = ALSModel.load(model_path)
 playlist_indexer = spark.read.parquet(playlist_meta_path)
@@ -56,7 +57,7 @@ df_final = df_submit.withColumn("recommended_track_uris", map_to_uri(col("recomm
 # ========================================
 # 4. Ghi submission.csv
 # ========================================
-output_path = "hdfs://node1:9000/output/submission/"
+output_path = f"hdfs://{node}:9000/output/submission/"
 df_final.select("playlist_id", "recommended_track_uris").write.mode("overwrite").option("header", True).csv(output_path)
 
 print("✅ Gợi ý hoàn tất. File submission.csv đã được lưu vào HDFS.")

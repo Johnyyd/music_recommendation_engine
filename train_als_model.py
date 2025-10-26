@@ -16,7 +16,8 @@ spark.sparkContext.setLogLevel("WARN")
 # ========================================
 # 2. Đọc dữ liệu đã xử lý
 # ========================================
-parquet_path = "hdfs://node1:9000/data/mpd/parquet/"
+node = "172.19.67.26" # "node1"
+parquet_path = f"hdfs://{node}:9000/data/mpd/parquet/"
 training_data = spark.read.parquet(parquet_path)
 
 # ========================================
@@ -40,6 +41,6 @@ model = als.fit(training_data)
 # ========================================
 # 4. Lưu model lên HDFS
 # ========================================
-model.save("hdfs://node1:9000/models/als_implicit/")
+model.save(f"hdfs://{node}:9000/models/als_implicit/")
 print("✅ Huấn luyện ALS hoàn tất và model đã được lưu lên HDFS.")
 spark.stop()
