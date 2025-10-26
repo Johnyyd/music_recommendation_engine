@@ -64,7 +64,7 @@ Mô hình được đánh giá bằng Mean Average Precision (MAP). Xem thêm ch
 
 ## Tác giả
 
-[Your Name]
+Nguyễn Minh Trí | Ngô Quốc Huy
 
 ## License
 
