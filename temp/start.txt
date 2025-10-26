@@ -1,0 +1,18 @@
+Trên Master Node
+# Start HDFS
+start-dfs.sh
+
+# Start Spark Master
+start-master.sh
+
+
+
+Trên Worker Node
+# Start DataNode
+hadoop-daemon.sh start datanode
+
+# Start Spark Worker, trỏ đến Master
+start-worker.sh spark://master-node:7077
+
+
+

@@ -1,0 +1,146 @@
+$HADOOP_HOME/etc/hadoop/hdfs-site.xml
+<?xml version="1.0"?>
+<configuration>
+
+  <!-- Thư mục lưu trữ dữ liệu HDFS trên máy -->
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:///usr/local/hadoop/data/namename</value>
+  </property>
+
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///usr/local/hadoop/data/datanode</value>
+  </property>
+
+  <!-- Kích hoạt replication giữa 2 node -->
+  <property>
+    <name>dfs.replication</name>
+    <value>2</value>
+  </property>
+
+  <!-- Địa chỉ truy cập NameNode qua LAN -->
+  <property>
+    <name>dfs.namenode.http-address</name>
+    <value>master-node:9870</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.rpc-address</name>
+    <value>master-node:9000</value>
+  </property>
+
+  <!-- Cho phép HDFS an toàn, tắt chế độ safe mode -->
+  <property>
+    <name>dfs.permissions</name>
+    <value>false</value>
+  </property>
+
+  <!-- Giới hạn block size (128MB tiêu chuẩn) -->
+  <property>
+    <name>dfs.blocksize</name>
+    <value>134217728</value>
+  </property>
+
+  <!-- Cho phép remote DataNode -->
+  <property>
+    <name>dfs.client.use.datanode.hostname</name>
+    <value>true</value>
+  </property>
+
+</configuration>
+
+
+
+
+$SPARK_HOME/conf/spark-defaults.conf
+# Địa chỉ Master trong mạng LAN
+spark.master                     spark://master-node:7077
+spark.submit.deployMode          client
+
+# Tên ứng dụng
+spark.app.name                   Spotify-Recommendation-System
+
+# Đường dẫn HDFS cho input/output
+spark.hadoop.fs.defaultFS        hdfs://master-node:9000
+
+# Bộ nhớ và CPU cho mỗi executor
+spark.executor.memory             3g
+spark.driver.memory               2g
+spark.executor.cores              2
+
+# Số lượng executor tối đa
+spark.dynamicAllocation.enabled   true
+spark.dynamicAllocation.minExecutors  1
+spark.dynamicAllocation.maxExecutors  4
+
+# Kích hoạt PySpark sử dụng Hadoop classpath
+spark.driver.extraClassPath       /usr/local/hadoop/share/hadoop/common/*
+spark.executor.extraClassPath     /usr/local/hadoop/share/hadoop/common/*
+
+# Lưu log nhẹ
+spark.eventLog.enabled            true
+spark.eventLog.dir                hdfs://master-node:9000/spark-logs
+
+# Shuffle optimization
+spark.sql.shuffle.partitions      8
+
+# Broadcast optimization
+spark.broadcast.compress          true
+
+# Compression
+spark.io.compression.codec        lz4
+spark.rdd.compress                true
+
+# Output CSV encoding
+spark.sql.csv.encoding            UTF-8
+
+# Giới hạn warning
+spark.ui.showConsoleProgress      true
+spark.ui.enabled                  true
+spark.ui.port                     4040
+
+
+
+Cả hai được nối bằng cáp LAN trực tiếp hoặc switch, cùng subnet.
+Cấu hình trong /etc/hosts:
+192.168.1.10   master-node
+192.168.1.11   worker-node
+
+
+
+$HADOOP_HOME/etc/hadoop/core-site.xml
+<?xml version="1.0"?>
+<configuration>
+
+  <!-- Địa chỉ mặc định của HDFS -->
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://master-node:9000</value>
+  </property>
+
+  <!-- Thư mục tạm của Hadoop -->
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/usr/local/hadoop/tmp</value>
+  </property>
+
+  <!-- Cho phép DataNode truy cập qua hostname LAN -->
+  <property>
+    <name>dfs.client.use.datanode.hostname</name>
+    <value>true</value>
+  </property>
+
+  <!-- Cho phép Hadoop dùng IPv4 -->
+  <property>
+    <name>hadoop.ipc.client.fallback-to-simple-auth-allowed</name>
+    <value>true</value>
+  </property>
+
+</configuration>
+
+
+
+$SPARK_HOME/conf/workers
+# Danh sách máy tính tham gia cluster Spark
+worker-node
