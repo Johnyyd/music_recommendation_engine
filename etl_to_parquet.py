@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, lit
+from pyspark.sql.functions import col, explode, lit, dense_rank
+from pyspark.sql.window import Window
+import os
 
 # ========================================
 # 1. Spark Session
@@ -17,18 +19,19 @@ spark.sparkContext.setLogLevel("WARN")
 # 2. Đọc dữ liệu JSON
 # ========================================
 
-node = "172.19.67.26" # "node1"
+node = os.getenv("HDFS_NODE", "172.19.67.26")  # "node1"
 raw_path = f"hdfs://{node}:9000/data/mqd/raw/"
-parquet_path = f"hdfs://{node}:9000/data/mqd/parquet"
+parquet_path = f"hdfs://{node}:9000/data/mqd/parquet/"
 
-df_raw = spark.read.json(raw_path)
+df_raw = spark.read.option("multiLine", "true").json(raw_path)
 
 # ========================================
 # 3. Chuẩn hóa dữ liệu
 # ========================================
 df_tracks = (
     df_raw
-    .select(col("pid").alias("playlist_id"), explode("tracks").alias("track"))
+    .select(explode("playlists").alias("pl"))
+    .select(col("pl.pid").alias("playlist_id"), explode(col("pl.tracks")).alias("track"))
     .select(
         col("playlist_id"),
         col("track.track_uri").alias("track_uri"),
@@ -36,18 +39,24 @@ df_tracks = (
         col("track.artist_name").alias("artist_name")
     )
     .withColumn("count", lit(1))
+    .filter(col("playlist_id").isNotNull())
+    .filter(col("track_uri").isNotNull())
+    .filter(col("track_uri").startswith("spotify:track:"))
+    .dropDuplicates(["playlist_id", "track_uri"]) 
 )
 
 # ========================================
 # 4. Tạo index cho playlist và track
 # ========================================
 playlist_indexer = (
-    df_tracks.select("playlist_id").distinct().rdd.zipWithUniqueId()
-    .toDF(["playlist_id", "playlist_idx"])
+    df_tracks
+    .select("playlist_id").distinct()
+    .withColumn("playlist_idx", dense_rank().over(Window.orderBy(col("playlist_id"))) - 1)
 )
 track_indexer = (
-    df_tracks.select("track_uri").distinct().rdd.zipWithUniqueId()
-    .toDF(["track_uri", "track_idx"])
+    df_tracks
+    .select("track_uri").distinct()
+    .withColumn("track_idx", dense_rank().over(Window.orderBy(col("track_uri"))) - 1)
 )
 
 # Join lại để tạo interaction table
@@ -62,8 +71,8 @@ df_interactions = (
 # 5. Lưu ra HDFS dưới dạng Parquet
 # ========================================
 df_interactions.write.mode("overwrite").parquet(parquet_path)
-playlist_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mpd/meta/playlist_indexer/")
-track_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mpd/meta/track_indexer/")
+playlist_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mqd/meta/playlist_indexer/")
+track_indexer.write.mode("overwrite").parquet(f"hdfs://{node}:9000/data/mqd/meta/track_indexer/")
 
 print("✅ ETL hoàn tất: dữ liệu Parquet & mapping đã sẵn sàng.")
 spark.stop()

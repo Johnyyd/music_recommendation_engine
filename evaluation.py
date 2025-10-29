@@ -1,6 +1,8 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, size, expr
+from pyspark.sql.functions import col, expr, udf
+from pyspark.sql.types import ArrayType, StringType
 import numpy as np
+import os
 
 def calculate_map(predictions, actual, k=500):
     """
@@ -39,8 +41,8 @@ def evaluate_model(spark, model_path, test_data_path, track_meta_path):
     track_meta = spark.read.parquet(track_meta_path)
     
     # Tạo ground truth dictionary
-    test_truth = (test_data.groupBy("playlist_idx")
-                 .agg(expr("collect_list(track_uri) as actual_tracks")))
+    test_truth_idx = (test_data.groupBy("playlist_idx")
+                     .agg(expr("collect_list(track_idx) as actual_track_idxs")))
     
     # Generate recommendations
     recommendations = model.recommendForAllUsers(500)
@@ -49,20 +51,24 @@ def evaluate_model(spark, model_path, test_data_path, track_meta_path):
         expr("transform(recommendations, x -> x.track_idx)").alias("recommended_tracks")
     )
     
-    # Convert track_idx to track_uri
-    track_dict = {row["track_idx"]: row["track_uri"] 
-                 for row in track_meta.collect()}
-    
-    def convert_to_uris(track_idxs):
-        return [track_dict.get(idx, "") for idx in track_idxs]
-    
-    convert_udf = spark.udf.register("convert_to_uris", 
-                                   convert_to_uris, 
-                                   "array<string>")
-    
+    # Convert track_idx to track_uri using a UDF
+    track_dict = {row["track_idx"]: row["track_uri"] for row in track_meta.collect()}
+
+    def convert_to_uris_py(track_idxs):
+        if not track_idxs:
+            return []
+        return [track_dict.get(int(idx), "") for idx in track_idxs]
+
+    convert_to_uris = udf(convert_to_uris_py, ArrayType(StringType()))
+
     predictions = recommendations.withColumn(
         "predicted_tracks",
-        convert_udf(col("recommended_tracks"))
+        convert_to_uris(col("recommended_tracks"))
+    )
+
+    test_truth = test_truth_idx.withColumn(
+        "actual_tracks",
+        convert_to_uris(col("actual_track_idxs"))
     )
     
     # Join predictions with ground truth
@@ -100,10 +106,10 @@ if __name__ == "__main__":
     spark.sparkContext.setLogLevel("WARN")
     
     # Paths
-    node = "172.19.67.26"
-    model_path = f"hdfs://{node}:9000/models/als_implicit/"
-    test_data_path = f"hdfs://{node}:9000/data/mpd/test/"
-    track_meta_path = f"hdfs://{node}:9000/data/mpd/meta/track_indexer/"
+    node = os.getenv("HDFS_NODE", "172.19.67.26")
+    model_path = f"hdfs://{node}:9000/model/als_implicit/"
+    test_data_path = f"hdfs://{node}:9000/data/mqd/test/"
+    track_meta_path = f"hdfs://{node}:9000/data/mqd/meta/track_indexer/"
     
     # Evaluate
     map_score = evaluate_model(spark, model_path, test_data_path, track_meta_path)

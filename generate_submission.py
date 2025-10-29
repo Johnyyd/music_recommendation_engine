@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, udf, expr
 from pyspark.sql.types import StringType
 from pyspark.ml.recommendation import ALSModel
+import os
 
 # ========================================
 # 1. Spark Session
@@ -18,10 +19,10 @@ spark.sparkContext.setLogLevel("WARN")
 # ========================================
 # 2. Đọc model & dữ liệu meta
 # ========================================
-node = "172.19.67.26" # "node1"
-model_path = f"hdfs://{node}:9000/models/als_implicit/"
-playlist_meta_path = f"hdfs://{node}:9000/data/mpd/meta/playlist_indexer/"
-track_meta_path = f"hdfs://{node}:9000/data/mpd/meta/track_indexer/"
+node = os.getenv("HDFS_NODE", "172.19.67.26")  # "node1"
+model_path = f"hdfs://{node}:9000/model/als_implicit/"
+playlist_meta_path = f"hdfs://{node}:9000/data/mqd/meta/playlist_indexer/"
+track_meta_path = f"hdfs://{node}:9000/data/mqd/meta/track_indexer/"
 
 model = ALSModel.load(model_path)
 playlist_indexer = spark.read.parquet(playlist_meta_path)

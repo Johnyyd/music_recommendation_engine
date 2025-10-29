@@ -78,10 +78,10 @@ if __name__ == "__main__":
         spark.sparkContext.setLogLevel("WARN")
         
         # Paths
-        node = "172.19.67.26"
-        input_path = f"hdfs://{node}:9000/data/mpd/parquet/"
-        train_path = f"hdfs://{node}:9000/data/mpd/train/"
-        test_path = f"hdfs://{node}:9000/data/mpd/test/"
+        node = os.getenv("HDFS_NODE", "172.19.67.26")
+        input_path = f"hdfs://{node}:9000/data/mqd/parquet/"
+        train_path = f"hdfs://{node}:9000/data/mqd/train/"
+        test_path = f"hdfs://{node}:9000/data/mqd/test/"
         
         # Split data
         split_data(spark, input_path, train_path, test_path)
