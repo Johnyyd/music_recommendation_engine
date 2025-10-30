@@ -108,12 +108,12 @@ model = als.fit(training_data)
 try:
     # Lưu model chính
     model_path = f"hdfs://{node}:9000/model/als_implicit/"
-    model.save(model_path)
+    model.write().overwrite().save(model_path)
     
     # Tạo backup với timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_path = f"hdfs://{node}:9000/model/backup/als_implicit_{timestamp}/"
-    model.save(backup_path)
+    model.write().overwrite().save(backup_path)
     
     logging.info(f"Model saved successfully to {model_path}")
     logging.info(f"Backup created at {backup_path}")
@@ -121,10 +121,10 @@ try:
     # Log training metrics
     training_summary = {
         "timestamp": timestamp,
-        "num_iterations": model.getMaxIter(),
-        "rank": model.getRank(),
-        "reg_param": model.getRegParam(),
-        "alpha": model.getAlpha(),
+        "num_iterations": als.getMaxIter(),
+        "rank": als.getRank(),
+        "reg_param": als.getRegParam(),
+        "alpha": als.getAlpha(),
         "num_blocks": training_data.rdd.getNumPartitions()
     }
     logging.info(f"Training summary: {training_summary}")
