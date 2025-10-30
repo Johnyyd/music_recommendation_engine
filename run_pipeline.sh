@@ -61,11 +61,35 @@ HDFS_NODE="$node" spark-submit \
 check_status "Training"
 
 log "=== [4/5] Evaluate Model ==="
-HDFS_NODE="$node" spark-submit --master spark://$node:7077 /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/evaluation.py
+HDFS_NODE="$node" spark-submit \
+--master spark://$node:7077 \
+--conf spark.executor.memory=5g \
+--conf spark.executor.memoryOverhead=1g \
+--conf spark.driver.memory=2g \
+--conf spark.executor.cores=2 \
+--conf spark.sql.shuffle.partitions=64 \
+--conf spark.default.parallelism=64 \
+--conf spark.speculation=true \
+--conf spark.task.maxFailures=8 \
+--conf spark.reducer.maxSizeInFlight=48m \
+--conf spark.local.dir=/tmp/spark \
+/mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/evaluation.py
 check_status "Evaluation"
 
 log "=== [5/5] Generate Submission ==="
-HDFS_NODE="$node" spark-submit --master spark://$node:7077 /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/generate_submission.py
+HDFS_NODE="$node" spark-submit \
+--master spark://$node:7077 \
+--conf spark.executor.memory=4g \
+--conf spark.executor.memoryOverhead=1g \
+--conf spark.driver.memory=2g \
+--conf spark.executor.cores=2 \
+--conf spark.sql.shuffle.partitions=128 \
+--conf spark.default.parallelism=128 \
+--conf spark.speculation=true \
+--conf spark.task.maxFailures=8 \
+--conf spark.reducer.maxSizeInFlight=48m \
+--conf spark.local.dir=/tmp/spark \
+/mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/generate_submission.py
 check_status "Submission Generation"
 
 log "✅ Pipeline completed successfully!"
