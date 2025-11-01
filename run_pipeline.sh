@@ -92,6 +92,7 @@ HDFS_NODE="$node" spark-submit \
   --conf spark.local.dir=/tmp/spark \
   /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/train_als_model.py
 check_status "Training"
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/model/als_implicit/ hdfs://172.19.67.26:9000/model/als_implicit/
 
 log "=== [4/5] Evaluate Model ==="
 HDFS_NODE="$node" spark-submit \
@@ -120,6 +121,7 @@ HDFS_NODE="$node" spark-submit \
   --conf spark.local.dir=/tmp/spark \
   /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/generate_submission.py
 check_status "Submission Generation"
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/submission/ hdfs://172.19.67.26:9000/output/submission/
 
 log "✅ Pipeline completed successfully!"
 

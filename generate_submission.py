@@ -69,5 +69,14 @@ output_path = f"hdfs://{node}:9000/output/submission/"
     .csv(output_path)
 )
 
+local_output_path = "output/submission/"
+(
+    df_final.select("playlist_id", "recommended_track_uris")
+    .coalesce(1)
+    .write.mode("overwrite")
+    .option("header", True)
+    .csv(local_output_path)
+)
+
 print("✅ Gợi ý hoàn tất. File submission.csv đã được lưu vào HDFS.")
 spark.stop()
