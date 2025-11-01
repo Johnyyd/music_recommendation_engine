@@ -19,7 +19,7 @@ spark.sparkContext.setLogLevel("WARN")
 # 2. Đọc dữ liệu JSON
 # ========================================
 
-node = os.getenv("HDFS_NODE", "172.19.67.26")  # "node1"
+node = os.getenv("HDFS_NODE", "192.168.10.1")  # "node1"
 raw_path = f"hdfs://{node}:9000/data/mqd/raw/"
 parquet_path = f"hdfs://{node}:9000/data/mqd/parquet/"
 

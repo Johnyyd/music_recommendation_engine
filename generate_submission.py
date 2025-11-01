@@ -13,7 +13,7 @@ spark = (
 spark.sparkContext.setLogLevel("WARN")
 
 # 2. Đọc model & dữ liệu meta
-node = os.getenv("HDFS_NODE", "172.19.67.26")
+node = os.getenv("HDFS_NODE", "192.168.10.1")
 model_path = f"hdfs://{node}:9000/model/als_implicit/"
 playlist_meta_path = f"hdfs://{node}:9000/data/mqd/meta/playlist_indexer/"
 track_meta_path = f"hdfs://{node}:9000/data/mqd/meta/track_indexer/"

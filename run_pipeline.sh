@@ -2,8 +2,8 @@
 set -e  # Thoát nếu có lỗi
 
 # Cấu hình
-node="172.19.67.26" # SỬ DỤNG IP MASTER để truy cập HDFS
-master_url="spark://172.19.67.26:7077" # SỬ DỤNG IP MASTER để Master lắng nghe
+node="192.168.10.1" # SỬ DỤNG IP MASTER để truy cập HDFS
+master_url="spark://192.168.10.1:7077" # SỬ DỤNG IP MASTER để Master lắng nghe
 timestamp=$(date +%Y%m%d_%H%M%S)
 log_dir="logs"
 log_file="${log_dir}/pipeline_${timestamp}.log"

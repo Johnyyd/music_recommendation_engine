@@ -136,7 +136,7 @@ if __name__ == "__main__":
             .config("spark.sql.shuffle.partitions", "200")
             .getOrCreate())
     spark.sparkContext.setLogLevel("WARN")
-    node = os.getenv("HDFS_NODE", "172.19.67.26")
+    node = os.getenv("HDFS_NODE", "192.168.10.1")
     model_path = f"hdfs://{node}:9000/model/als_implicit/"
     test_data_path = f"hdfs://{node}:9000/data/mqd/test/"
     track_meta_path = f"hdfs://{node}:9000/data/mqd/meta/track_indexer/"

@@ -49,7 +49,7 @@ spark.sparkContext.setLogLevel("WARN")
 # 3. Đọc dữ liệu đã xử lý
 # ========================================
 try:
-    node = os.getenv("HDFS_NODE", "172.19.67.26")  # "node1"
+    node = os.getenv("HDFS_NODE", "192.168.10.1")  # "node1"
     parquet_path = f"hdfs://{node}:9000/data/mqd/parquet/"
     training_data = spark.read.parquet(parquet_path)
     

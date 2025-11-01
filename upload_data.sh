@@ -4,7 +4,7 @@
 # Cấu hình Đường dẫn
 # ========================================
 # IP của NameNode (Master Node) và cổng mặc định 9000
-NAMENODE_URI="hdfs://172.19.67.26:9000"
+NAMENODE_URI="hdfs://192.168.10.1:9000"
 
 # Đường dẫn file JSON cục bộ trên WSL/Linux
 # Đường dẫn này được lấy từ vị trí mà bạn đã mount ổ đĩa Windows (thường là /mnt/c)
