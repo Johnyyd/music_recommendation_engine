@@ -1,0 +1,13 @@
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/upload_data.sh hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/run_pipeline.sh hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/etl_to_parquet.py hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/split_train_test.py hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/train_als_model.py hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/evaluation.py hdfs://172.19.67.26:9000/
+
+hdfs dfs -put /mnt/c/LUUDULIEU/CODE/github/music_recommendation_engine/generate_submission.py hdfs://172.19.67.26:9000/
